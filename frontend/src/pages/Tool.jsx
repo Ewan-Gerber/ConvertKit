@@ -4,7 +4,7 @@ import { TOOLS } from '../tools'
 import DropZone from '../components/DropZone'
 import axios from 'axios'
 
-const API = 'http://127.0.0.1:8000'
+const API = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : ''
 
 export default function Tool() {
   const { id } = useParams()

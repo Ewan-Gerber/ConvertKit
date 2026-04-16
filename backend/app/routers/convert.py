@@ -67,7 +67,8 @@ async def pdf_to_images(background_tasks: BackgroundTasks, file: UploadFile = Fi
 @router.post("/word-to-pdf")
 async def word_to_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     input_path = create_temp_file(".docx")
-    output_dir = os.path.dirname(input_path)
+    html_path = create_temp_file(".html")
+    output_path = create_temp_file(".pdf")
 
     try:
         content = await file.read()
@@ -75,25 +76,58 @@ async def word_to_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
         with open(input_path, "wb") as f:
             f.write(content)
 
-        result = subprocess.run([
-            get_libreoffice_path(),
-            "--headless",
-            "--convert-to", "pdf",
-            "--outdir", output_dir,
-            input_path
-        ], capture_output=True, text=True, timeout=30)
+        doc = Document(input_path)
 
-        if result.returncode != 0:
-            raise HTTPException(status_code=500, detail=f"Conversion failed: {result.stderr}")
+        html_parts = ['<!DOCTYPE html><html><head><meta charset="utf-8">']
+        html_parts.append('<style>')
+        html_parts.append('body { font-family: Arial, sans-serif; margin: 2cm; font-size: 12pt; line-height: 1.5; }')
+        html_parts.append('h1 { font-size: 18pt; font-weight: bold; margin: 12pt 0; }')
+        html_parts.append('h2 { font-size: 16pt; font-weight: bold; margin: 10pt 0; }')
+        html_parts.append('h3 { font-size: 14pt; font-weight: bold; margin: 8pt 0; }')
+        html_parts.append('p { margin: 6pt 0; }')
+        html_parts.append('table { border-collapse: collapse; width: 100%; }')
+        html_parts.append('td, th { border: 1px solid #ccc; padding: 4pt 8pt; }')
+        html_parts.append('</style></head><body>')
 
-        output_path = input_path.replace(".docx", ".pdf")
+        for para in doc.paragraphs:
+            text = para.text.strip()
+            if not text:
+                html_parts.append('<br>')
+                continue
+            style = para.style.name.lower()
+            if 'heading 1' in style:
+                html_parts.append(f'<h1>{text}</h1>')
+            elif 'heading 2' in style:
+                html_parts.append(f'<h2>{text}</h2>')
+            elif 'heading 3' in style:
+                html_parts.append(f'<h3>{text}</h3>')
+            else:
+                bold = any(run.bold for run in para.runs if run.text.strip())
+                if bold:
+                    html_parts.append(f'<p><strong>{text}</strong></p>')
+                else:
+                    html_parts.append(f'<p>{text}</p>')
 
-        if not os.path.exists(output_path):
-            raise HTTPException(status_code=500, detail="Output file not created")
+        for table in doc.tables:
+            html_parts.append('<table>')
+            for row in table.rows:
+                html_parts.append('<tr>')
+                for cell in row.cells:
+                    html_parts.append(f'<td>{cell.text}</td>')
+                html_parts.append('</tr>')
+            html_parts.append('</table>')
+
+        html_parts.append('</body></html>')
+        html_content = ''.join(html_parts)
+
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+
+        from weasyprint import HTML
+        HTML(filename=html_path).write_pdf(output_path)
 
         filename = f"{get_safe_filename(file.filename)}.pdf"
-
-        background_tasks.add_task(cleanup_files, input_path, output_path)
+        background_tasks.add_task(cleanup_files, input_path, html_path, output_path)
 
         return FileResponse(
             output_path,
@@ -101,10 +135,10 @@ async def word_to_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
             filename=filename
         )
     except HTTPException:
-        cleanup_files(input_path)
+        cleanup_files(input_path, html_path, output_path)
         raise
     except Exception as e:
-        cleanup_files(input_path)
+        cleanup_files(input_path, html_path, output_path)
         raise HTTPException(status_code=500, detail=str(e))
 
 

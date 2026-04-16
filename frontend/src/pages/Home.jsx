@@ -19,6 +19,9 @@ export default function Home() {
             <ToolCard key={tool.id} tool={tool} />
           ))}
         </div>
+        <p style={{ fontSize: '0.8125rem', color: '#a1a1aa', marginTop: '1rem' }}>
+          Word ↔ PDF conversion available in the local version. Requires LibreOffice.
+        </p>
 
         <div style={{ borderTop: '1px solid #e4e4e7', paddingTop: '4rem', marginBottom: '4rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#18181b', marginBottom: '2.5rem' }}>

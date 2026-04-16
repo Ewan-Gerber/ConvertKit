@@ -5,3 +5,4 @@ pillow
 python-multipart
 python-docx
 docx2pdf
+weasyprint

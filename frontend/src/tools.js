@@ -36,17 +36,6 @@ export const TOOLS = [
     endpoint: '/pdf/compress',
     inputLabel: 'Drop your PDF here',
     fileField: 'file',
-  },
-  {
-    id: 'compress-pdf',
-    name: 'Compress PDF',
-    description: 'Reduce the file size of your PDF.',
-    icon: '🗜️',
-    accept: ['pdf'],
-    multiple: false,
-    endpoint: '/pdf/compress',
-    inputLabel: 'Drop your PDF here',
-    fileField: 'file',
     extraFields: [
       {
         name: 'quality',
@@ -56,6 +45,17 @@ export const TOOLS = [
         default: 'medium',
       },
     ],
+  },
+  {
+    id: 'images-to-pdf',
+    name: 'Images to PDF',
+    description: 'Convert JPG or PNG images into a single PDF.',
+    icon: '🖼️',
+    accept: ['jpg', 'jpeg', 'png', 'webp'],
+    multiple: true,
+    endpoint: '/pdf/images-to-pdf',
+    inputLabel: 'Drop your images here',
+    fileField: 'files',
   },
   {
     id: 'pdf-to-images',

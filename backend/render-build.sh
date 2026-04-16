@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
-apt-get install -y libreoffice
+sudo apt-get install -y libreoffice
 pip install -r requirements.txt

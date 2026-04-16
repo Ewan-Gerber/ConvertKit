@@ -1,10 +1,25 @@
+import { useNavigate } from 'react-router-dom'
 import ToolCard from '../components/ToolCard'
 import { TOOLS } from '../tools'
 
 export default function Home() {
+  const navigate = useNavigate()
+
+  const getRecentTools = () => {
+    try {
+      const recent = JSON.parse(localStorage.getItem('recent_tools') || '[]')
+      return TOOLS.filter(t => recent.includes(t.id)).slice(0, 3)
+    } catch {
+      return []
+    }
+  }
+
+  const recentTools = getRecentTools()
+
   return (
     <div>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
+
         <div style={{ marginBottom: '3rem' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.03em', color: '#18181b', marginBottom: '0.75rem', lineHeight: 1.15 }}>
             Every file tool<br />you actually need
@@ -21,6 +36,26 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {recentTools.length > 0 && (
+          <div style={{ marginBottom: '2rem' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Recently used</p>
+            <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
+              {recentTools.map(tool => (
+                <button
+                  key={tool.id}
+                  onClick={() => navigate(`/tool/${tool.id}`)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.875rem', border: '1px solid #e4e4e7', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '0.875rem', color: '#18181b', fontWeight: 500, transition: 'border-color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#2563eb'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#e4e4e7'}
+                >
+                  <span style={{ fontSize: '1rem' }}>{tool.icon}</span>
+                  {tool.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{ marginBottom: '5rem' }}>
           <div style={{ marginBottom: '1rem' }}>
@@ -40,7 +75,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: '#a1a1aa', marginTop: '1rem' }}>
+
+        <p style={{ fontSize: '0.8125rem', color: '#a1a1aa', marginTop: '-3rem', marginBottom: '4rem' }}>
           Word ↔ PDF conversion available in the local version. Requires LibreOffice.
         </p>
 
@@ -78,6 +114,7 @@ export default function Home() {
             <a href="https://www.linkedin.com/in/ewan-gerber" target="_blank" rel="noreferrer" style={{ fontSize: '0.8125rem', color: '#71717a', textDecoration: 'none' }}>LinkedIn</a>
           </div>
         </div>
+
       </div>
     </div>
   )

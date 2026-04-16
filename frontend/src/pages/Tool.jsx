@@ -38,6 +38,14 @@ export default function Tool() {
   }
 
   const handleConvert = async () => {
+    try {
+      const recent = JSON.parse(localStorage.getItem('recent_tools') || '[]')
+      const updated = [tool.id, ...recent.filter(id => id !== tool.id)].slice(0, 3)
+      localStorage.setItem('recent_tools', JSON.stringify(updated))
+    } catch (err) {
+      console.error('Failed to update recent tools', err)
+    }
+
     if (!files.length) { setError('Please select a file first'); return }
     setLoading(true)
     setError('')

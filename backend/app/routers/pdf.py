@@ -101,7 +101,11 @@ async def split_pdf(
 
 
 @router.post("/compress")
-async def compress_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def compress_pdf(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    quality: str = Form("medium")
+):
     input_path = create_temp_file(".pdf")
     output_path = create_temp_file(".pdf")
 
@@ -112,7 +116,13 @@ async def compress_pdf(background_tasks: BackgroundTasks, file: UploadFile = Fil
             f.write(content)
 
         doc = fitz.open(input_path)
-        doc.save(output_path, garbage=4, deflate=True, clean=True)
+        quality_settings = {
+            "high": {"garbage": 2, "deflate": True, "clean": True},
+            "medium": {"garbage": 4, "deflate": True, "clean": True},
+            "low": {"garbage": 4, "deflate": True, "clean": True, "deflate_images": True},
+        }
+        settings = quality_settings.get(quality, quality_settings["medium"])
+        doc.save(output_path, **settings)
         doc.close()
 
         original_size = os.path.getsize(input_path)

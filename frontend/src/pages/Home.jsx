@@ -9,15 +9,36 @@ export default function Home() {
           <h1 style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.03em', color: '#18181b', marginBottom: '0.75rem', lineHeight: 1.15 }}>
             Every file tool<br />you actually need
           </h1>
-          <p style={{ fontSize: '1.0625rem', color: '#71717a', maxWidth: '480px' }}>
+          <p style={{ fontSize: '1.0625rem', color: '#71717a', maxWidth: '480px', marginBottom: '1.5rem' }}>
             Convert, compress and transform PDFs and images. No sign up, no watermarks, no nonsense.
           </p>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+            {['7 tools', 'No sign up', 'Files never stored', 'Free forever'].map(stat => (
+              <span key={stat} style={{ fontSize: '0.8125rem', color: '#2563eb', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563eb', display: 'inline-block' }}></span>
+                {stat}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem', marginBottom: '5rem' }}>
-          {TOOLS.map(tool => (
-            <ToolCard key={tool.id} tool={tool} />
-          ))}
+        <div style={{ marginBottom: '5rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>PDF tools</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+              {TOOLS.filter(t => ['merge-pdf', 'split-pdf', 'compress-pdf', 'images-to-pdf', 'pdf-to-images', 'rotate-pdf'].includes(t.id)).map(tool => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: '2rem' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Image tools</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+              {TOOLS.filter(t => ['resize-image'].includes(t.id)).map(tool => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </div>
         </div>
         <p style={{ fontSize: '0.8125rem', color: '#a1a1aa', marginTop: '1rem' }}>
           Word ↔ PDF conversion available in the local version. Requires LibreOffice.
